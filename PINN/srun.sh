@@ -1,1 +1,1 @@
-sbatch --partition=gpunodes -c 1 --mem=4G --gres=gpu:1 run.sh
+sbatch --partition=gpunodes -c 1 --mem=4G --gres=gpu:1 -t 120 run.sh
