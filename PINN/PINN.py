@@ -245,7 +245,7 @@ if __name__ == '__main__':
                                    x_bound=[-5, 5]
                                   )
     
-    epochs = 200
+    epochs = 10000
     schrodinger_model = SchrodingerModel(n_layer=5, n_out=2)
     optimizer = torch.optim.Adam(schrodinger_model.parameters(), lr=1e-5)
     schrodinger_model.to(device)
@@ -277,6 +277,16 @@ if __name__ == '__main__':
         data_losses.append(data_loss.item())
         boundary_losses.append(boundary_loss.item())
         f_losses.append(f_loss.item())
-        if i % 100 == 0:
+        if i % 1000 == 0:
             print(loss)
+            checkpoint_path = f"./schrodinger_model-{i}.pt"
+
+            torch.save({
+                'model_state_dict': schrodinger_model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'epoch': 15000 + i,                # optional: last completed epoch
+                'loss': (data_losses, boundary_losses, f_losses)                   # optional: last loss
+            }, checkpoint_path)
+
+            print(f"Checkpoint saved to {checkpoint_path}")
 
