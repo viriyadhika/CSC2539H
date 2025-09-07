@@ -14,11 +14,12 @@ import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
 import requests
 import os
+import logging
 
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-print("Using " + device)
+logging.info("Using " + device)
 
 torch.cuda.manual_seed(42)
 torch.manual_seed(42)
@@ -93,21 +94,31 @@ class SchrodingerData:
 
 
 class SchrodingerModel(nn.Module):
-    def __init__(self, n_layer, n_out):
+    def __init__(self, n_input: int, n_layer: int, n_out: int):
         super().__init__()
-        self.hidden = nn.Sequential(*[self.block(100) for i in range(n_layer) ])
-        self.last = nn.LazyLinear(n_out, dtype=torch.float64)
+        n_hidden = 100
+        self.first = self.block(n_input, n_hidden)
+        self.hidden = nn.Sequential(*[self.block(n_hidden, n_hidden) for i in range(n_layer) ])
+        self.last = nn.Linear(n_hidden, n_out, dtype=torch.float64)
 
-    def block(self, n_hidden):
+        self.apply(self._init_weights)
+
+    def block(self, n_input, n_hidden):
         return nn.Sequential(*[
-            nn.LazyLinear(n_hidden, dtype=torch.float64),
+            nn.Linear(n_input, n_hidden, dtype=torch.float64),
             nn.Tanh()
         ])
 
+    def _init_weights(self, module):
+        """Apply Xavier initialization to linear layers"""
+        if isinstance(module, nn.Linear):
+            # Xavier uniform initialization (also called Glorot uniform)
+            nn.init.xavier_uniform_(module.weight)
+            if module.bias is not None:
+                nn.init.zeros_(module.bias)
+
     def forward(self, X):
-        return self.last(self.hidden(X))
-
-
+        return self.last(self.hidden(self.first(X)))
 
 
 def get_boundary_loss(schrodinger_model, schrodinger_data):
@@ -219,7 +230,7 @@ if __name__ == '__main__':
     with open("Data/NLS.mat", "wb") as f:
         f.write(r.content)
 
-    print("Downloaded NLS.mat to Data/NLS.mat")
+    logging.info("Downloaded NLS.mat to Data/NLS.mat")
 
 
     # In[8]:
@@ -246,13 +257,13 @@ if __name__ == '__main__':
                                   )
     
     epochs = 10000
-    schrodinger_model = SchrodingerModel(n_layer=5, n_out=2)
-    optimizer = torch.optim.Adam(schrodinger_model.parameters(), lr=1e-5)
+    schrodinger_model = SchrodingerModel(n_input=2, n_layer=5, n_out=2)
+    optimizer = torch.optim.Adam(schrodinger_model.parameters())
     schrodinger_model.to(device)
 
     checkpoint_path = "./schrodinger_model.pt"
     if os.path.exists('./schrodinger_model.pt'):
-        print("Path Exist, loading weight")
+        logging.info("Path Exist, loading weight")
         checkpoint = torch.load(checkpoint_path, map_location=device)
 
         schrodinger_model.load_state_dict(checkpoint['model_state_dict'])
@@ -278,7 +289,7 @@ if __name__ == '__main__':
         boundary_losses.append(boundary_loss.item())
         f_losses.append(f_loss.item())
         if i % 1000 == 0:
-            print(loss)
+            logging.info(loss)
             checkpoint_path = f"./schrodinger_model-{i}.pt"
 
             torch.save({
@@ -288,5 +299,5 @@ if __name__ == '__main__':
                 'loss': (data_losses, boundary_losses, f_losses)                   # optional: last loss
             }, checkpoint_path)
 
-            print(f"Checkpoint saved to {checkpoint_path}")
+            logging.info(f"Checkpoint saved to {checkpoint_path}")
 
