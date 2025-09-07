@@ -257,7 +257,7 @@ if __name__ == '__main__':
                                   )
     
     epochs = 10000
-    schrodinger_model = SchrodingerModel(n_input=2, n_layer=5, n_out=2)
+    schrodinger_model = SchrodingerModel(n_input=2, n_layer=3, n_out=2)
     optimizer = torch.optim.Adam(schrodinger_model.parameters())
     schrodinger_model.to(device)
 
