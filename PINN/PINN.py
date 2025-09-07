@@ -18,6 +18,7 @@ import os
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
+print("Using " + device)
 
 torch.cuda.manual_seed(42)
 torch.manual_seed(42)
