@@ -16,7 +16,11 @@ import requests
 import os
 import logging
 
-
+logging.basicConfig(
+    filename='log.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 logging.info("Using " + device)
