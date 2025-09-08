@@ -1,0 +1,28 @@
+2025-09-07 21:42:32,339 - INFO - Using cuda
+2025-09-07 21:42:32,666 - INFO - Downloaded NLS.mat to Data/NLS.mat
+2025-09-07 21:42:34,951 - INFO - Path Exist, loading weight
+2025-09-07 21:42:35,609 - INFO - tensor(0.0008, device='cuda:0', dtype=torch.float64, grad_fn=<AddBackward0>)
+2025-09-07 21:42:35,696 - INFO - Checkpoint saved to ./schrodinger_model-17000.pt
+2025-09-07 21:50:33,253 - INFO - Using cuda
+2025-09-07 21:50:33,637 - INFO - Downloaded NLS.mat to Data/NLS.mat
+2025-09-07 21:50:35,546 - INFO - Path Exist, loading weight
+2025-09-07 21:50:36,175 - INFO - tensor(0.0008, device='cuda:0', dtype=torch.float64, grad_fn=<AddBackward0>)
+2025-09-07 21:50:36,252 - INFO - Checkpoint saved to ./schrodinger_model-17000.pt
+2025-09-07 21:52:30,354 - INFO - Using cuda
+2025-09-07 21:52:30,684 - INFO - Downloaded NLS.mat to Data/NLS.mat
+2025-09-07 21:52:32,460 - INFO - Path Exist, loading weight
+2025-09-07 21:52:33,092 - INFO - tensor(0.0008, device='cuda:0', dtype=torch.float64, grad_fn=<AddBackward0>)
+2025-09-07 21:52:33,173 - INFO - Checkpoint saved to ./schrodinger_model-17000.pt
+2025-09-07 21:53:19,841 - INFO - Using cuda
+2025-09-07 21:53:20,411 - INFO - Downloaded NLS.mat to Data/NLS.mat
+2025-09-07 21:53:22,570 - INFO - Path Exist, loading weight
+2025-09-07 21:53:23,018 - INFO - tensor(0.0008, device='cuda:0', dtype=torch.float64, grad_fn=<AddBackward0>)
+2025-09-07 21:53:23,102 - INFO - Checkpoint saved to ./schrodinger_model-17000.pt
+2025-09-07 21:57:07,025 - INFO - tensor(0.0008, device='cuda:0', dtype=torch.float64, grad_fn=<AddBackward0>)
+2025-09-07 21:57:07,043 - INFO - Checkpoint saved to ./schrodinger_model-18000.pt
+2025-09-07 22:01:02,101 - INFO - tensor(0.0006, device='cuda:0', dtype=torch.float64, grad_fn=<AddBackward0>)
+2025-09-07 22:01:02,117 - INFO - Checkpoint saved to ./schrodinger_model-19000.pt
+2025-09-07 22:04:55,244 - INFO - tensor(0.0007, device='cuda:0', dtype=torch.float64, grad_fn=<AddBackward0>)
+2025-09-07 22:04:55,264 - INFO - Checkpoint saved to ./schrodinger_model-20000.pt
+2025-09-07 22:08:47,711 - INFO - tensor(0.0020, device='cuda:0', dtype=torch.float64, grad_fn=<AddBackward0>)
+2025-09-07 22:08:47,731 - INFO - Checkpoint saved to ./schrodinger_model-21000.pt

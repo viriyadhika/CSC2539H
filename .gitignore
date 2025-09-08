@@ -4,3 +4,4 @@
 .venv
 **/Scratch*
 **/*.pdf
+.scripts
