@@ -215,7 +215,8 @@ class PINNLoss(nn.Module):
         u_tt = torch.autograd.grad(
             torch.sum(u_t),
             wave_data.t_collocation,
-            create_graph=True
+            create_graph=True,
+            retain_graph=True
         )[0]
 
         u_x = torch.autograd.grad(
@@ -287,7 +288,7 @@ def training_loop(epochs: int, model: nn.Module, optimizer: torch.optim.Optimize
             checkpoint_path = f"{path}/fourier_nn-{i}.pt"
 
             torch.save({
-                'model_state_dict': ffmlp.state_dict(),
+                'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict()
             }, checkpoint_path)
 
@@ -332,9 +333,9 @@ class MultiscaleFourierEmbedding(nn.Module):
 class FFMLP(nn.Module):
     def __init__(self, sigmas: list[float]) -> None:
         super().__init__()
-        self.embedding = MultiscaleFourierEmbedding(in_dim=2, num_features=2, sigmas=sigmas)
+        self.embedding = MultiscaleFourierEmbedding(in_dim=2, num_features=16, sigmas=sigmas)
         self.ff = nn.Sequential(
-            nn.Linear(12, 200),
+            nn.Linear(64, 200),
             nn.Tanh(),
             nn.Linear(200, 200),
             nn.Tanh(),
