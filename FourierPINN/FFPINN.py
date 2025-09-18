@@ -335,7 +335,7 @@ class FFMLP(nn.Module):
         super().__init__()
         self.embedding = MultiscaleFourierEmbedding(in_dim=2, num_features=16, sigmas=sigmas)
         self.ff = nn.Sequential(
-            nn.Linear(64, 200),
+            nn.Linear(96, 200),
             nn.Tanh(),
             nn.Linear(200, 200),
             nn.Tanh(),
