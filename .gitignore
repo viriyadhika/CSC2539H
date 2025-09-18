@@ -5,3 +5,4 @@
 **/Scratch*
 **/*.pdf
 .scripts
+wandb
