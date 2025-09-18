@@ -169,7 +169,16 @@ class PINNLoss(nn.Module):
         return boundary_loss, pde_loss, data_loss
 
 def training_loop(epochs: int, wave_data: WaveData, model: nn.Module, criterion: nn.Module, optimizer: torch.optim.Optimizer):
-    losses = []
+    run = wandb.init(
+        reinit="finish_previous",
+        entity="viriyadhika1",
+        project="pinn-lab1",
+        name=model.__class__.__name__,
+        config={
+            "model": model.__class__.__name__,
+            "epochs": epochs
+        },
+    )
     for i in range(epochs):
         optimizer.zero_grad()
         for dt in [
@@ -191,7 +200,7 @@ def training_loop(epochs: int, wave_data: WaveData, model: nn.Module, criterion:
         # Backpropagation
         loss.backward()
 
-        losses.append({
+        run.log({
             'loss': loss.item(),
             'boundary_loss': boundary_loss.item(),
             'pde_loss': pde_loss.item(),
@@ -201,17 +210,15 @@ def training_loop(epochs: int, wave_data: WaveData, model: nn.Module, criterion:
         optimizer.step()
 
         if i % 99 == 0:
-            total_loss = [d['loss'] for d in losses]
-            boundary_loss = [d['boundary_loss'] for d in losses]
-            pde_loss = [d['pde_loss'] for d in losses]
-            data_loss = [d['data_loss'] for d in losses]
+            path = "Anisotropic"
 
-            # Plot
-            plt.figure(figsize=(4,2))
-            plt.yscale('log')
-            plt.plot(total_loss, label='Total Loss')
-            plt.plot(boundary_loss, label='Boundary Loss')
-            plt.plot(pde_loss, label='PDE Loss')
-            plt.plot(data_loss, label='Data Loss')
-            plt.legend()
-            plt.show()
+            # Create folder(s) if they don't exist
+            os.makedirs(path, exist_ok=True)
+            checkpoint_path = f"{path}/fourier_nn-{i}.pt"
+
+            torch.save({
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict()
+            }, checkpoint_path)
+
+            print(f"Checkpoint saved to {checkpoint_path}")

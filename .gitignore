@@ -6,3 +6,4 @@
 **/*.pdf
 .scripts
 wandb
+__pycache__
