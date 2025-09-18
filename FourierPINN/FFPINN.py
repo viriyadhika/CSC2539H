@@ -16,7 +16,7 @@ from lib.lib import WaveData, WaveRawData, Util, device, PINNLoss, training_loop
 if __name__ == '__main__':
     wave_raw_data = WaveRawData()
     util = Util()
-    wave_data = WaveData(wave_raw_data, 50, 50, 10000, util=util)
+    wave_data = WaveData(wave_raw_data, 360, 360, 360, util=util)
     # %%
     anisotropic_mlp = AnisotropicFourierMLP(sigmas=[1.0, 10.0]).to(device)
 
