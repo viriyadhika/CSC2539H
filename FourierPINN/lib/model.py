@@ -9,55 +9,37 @@ import os
 import logging
 import wandb
 
-class MultiscaleFourierEmbedding(nn.Module):
-    def __init__(self, in_dim: int, num_features: int, sigmas: list[float]):
-        """
-        Args:
-            in_dim: input dimension (e.g. 2 for (x,t))
-            num_features: number of random features per block
-            sigmas: list of scales (one per block), e.g. [1.0, 10.0, 50.0]
-        """
+class MultiScaleFourierEmbedding(nn.Module):
+    def __init__(self, n_input: int, n_out: int, sigmas: list[float]) -> None:
         super().__init__()
-        self.in_dim = in_dim
-        self.num_features = num_features
-        self.sigmas = sigmas
-        self.M = len(sigmas)
+        Bs = [] 
+        for sigma in sigmas:
+            Bs.append(torch.randn([n_input, n_out // 2]) ** sigma)
+        self.register_buffer("Bs", torch.stack(Bs, dim=0))
 
-        # For each sigma, create a random projection matrix B^i
-        # Shape: (M, num_features, in_dim)
-        B = torch.randn(self.M, num_features, in_dim)
-        self.register_buffer("B", B)
+    # X = n_batch x n_input
+    def forward(self, X):
+        Hs = []
+        for B in self.Bs:
+            out = X @ B
+            Hs.append(torch.cat([torch.sin(out), torch.cos(out)], dim=1))
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        x: (batch, in_dim)
-        returns: (batch, M * 2 * num_features)
-        """
-        batch_size = x.shape[0]
-
-        feats = []
-        for i, sigma in enumerate(self.sigmas):
-            proj = (x @ self.B[i].T) * sigma  # (batch, num_features)
-            cos_feat = torch.cos(2 * torch.pi * proj)
-            sin_feat = torch.sin(2 * torch.pi * proj)
-            feats.append(torch.cat([cos_feat, sin_feat], dim=-1))
-
-        return torch.cat(feats, dim=-1)  # (batch, M * 2 * num_features)
-
-class FFMLP(nn.Module):
-    def __init__(self, sigmas: list[float]) -> None:
+        return Hs
+    
+class MFFFourier(nn.Module):
+    def __init__(self) -> None:
         super().__init__()
-        self.embedding = MultiscaleFourierEmbedding(in_dim=2, num_features=16, sigmas=sigmas)
+        sigmas = [1., 10.]
+        n_hidden = 200
+
+        self.multi_scale_ff = MultiScaleFourierEmbedding(2, n_hidden, sigmas)
         self.ff = nn.Sequential(
-            nn.Linear(96, 200),
+            nn.Linear(n_hidden, n_hidden),
             nn.Tanh(),
-            nn.Linear(200, 200),
+            nn.Linear(n_hidden, n_hidden),
             nn.Tanh(),
-            nn.Linear(200, 200),
-            nn.Tanh(),
-            nn.Linear(200, 1)
         )
-
+        self.last_layer = nn.Linear(len(sigmas) * n_hidden, 1)
         self.apply(self._init_weights)
 
     def _init_weights(self, module):
@@ -68,11 +50,19 @@ class FFMLP(nn.Module):
             if module.bias is not None:
                 nn.init.zeros_(module.bias)
 
-    def forward(self, x, t):
+
+    def forward(self, x: torch.Tensor, t: torch.Tensor) -> None:
         X = torch.stack([x, t], dim=1)
-        y = self.embedding(X)
-        y = self.ff(y)
-        return y
+        embeddings = self.multi_scale_ff(X)
+        result = []
+        for embedding in embeddings:
+            # Use the same weight but evolve independently
+            result.append(self.ff(embedding))
+
+        # Cat it together
+        penultimate_layer = torch.cat(result, dim=1)
+        
+        return self.last_layer(penultimate_layer)
 
 class AnisotropicFourierEmbedding(nn.Module):
     def __init__(self, num_features: int, sigmas: list[float]):

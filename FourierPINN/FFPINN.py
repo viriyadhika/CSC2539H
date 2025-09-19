@@ -10,7 +10,7 @@ import os
 import logging
 import wandb
 
-from lib.model import AnisotropicFourierMLP
+from lib.model import MFFFourier
 from lib.lib import WaveData, WaveRawData, Util, device, PINNLoss, training_loop
 
 if __name__ == '__main__':
@@ -18,18 +18,18 @@ if __name__ == '__main__':
     util = Util()
     wave_data = WaveData(wave_raw_data, 360, 360, 360, util=util)
     # %%
-    anisotropic_mlp = AnisotropicFourierMLP(sigmas=[1.0, 10.0]).to(device)
+    mff_fourier = MFFFourier().to(device)
 
-    optimizer = torch.optim.Adam(anisotropic_mlp.parameters())
+    optimizer = torch.optim.Adam(mff_fourier.parameters())
     criterion = PINNLoss()
 
     # %%
-    optimizer = torch.optim.Adam(anisotropic_mlp.parameters())
+    optimizer = torch.optim.Adam(mff_fourier.parameters())
 
     # %%
-    training_loop(epochs=40000, wave_data=wave_data, criterion=criterion, model=anisotropic_mlp, optimizer=optimizer)
+    training_loop(epochs=40000, wave_data=wave_data, criterion=criterion, model=mff_fourier, optimizer=optimizer)
 
     # %%
     x, t = torch.tensor(wave_raw_data.X.reshape(-1), dtype=torch.float, device=device), torch.tensor(wave_raw_data.T.reshape(-1), dtype=torch.float, device=device)
-    y = anisotropic_mlp(x, t)
+    y = mff_fourier(x, t)
 
