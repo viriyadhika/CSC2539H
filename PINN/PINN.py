@@ -16,6 +16,7 @@ import requests
 import os
 import logging
 from lib.lib import SchrodingerModel, SchrodingerData, Util, get_loss
+import wandb
 
 logging.basicConfig(
     filename='log.log',
@@ -66,27 +67,38 @@ if __name__ == '__main__':
         schrodinger_model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     
-    data_losses = []
-    boundary_losses = []
-    f_losses = []
 
     for i in range(epochs):
+        run = wandb.init(
+            reinit="finish_previous",
+            entity="viriyadhika1",
+            project="pinn-lab1",
+            name="Schrodinger PINN",
+            config={
+                "model": "Schrodinger PINN",
+                "epochs": epochs
+            },
+        )
         optimizer.zero_grad()
         data_loss, boundary_loss, f_loss = get_loss(schrodinger_model, schrodinger_data)
         loss = data_loss + boundary_loss + f_loss
         loss.backward()
         optimizer.step()
-        data_losses.append(data_loss.item())
-        boundary_losses.append(boundary_loss.item())
-        f_losses.append(f_loss.item())
+
+        run.log({
+            'loss': loss.item(),
+            'boundary_loss': boundary_loss.item(),
+            'pde_loss': f_loss.item(),
+            'data_loss': data_loss.item()
+        })
+
         
         if i % 1000 == 0:
             logging.info(loss)
-            checkpoint_path = f"./schrodinger_model-{i}.pt"
+            checkpoint_path = f"4Refactor/schrodinger_model-{i}.pt"
             torch.save({
                 'model_state_dict': schrodinger_model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
-                'epoch': 15000 + i,                # optional: last completed epoch
-                'loss': (data_losses, boundary_losses, f_losses)                   # optional: last loss
+                'epoch': i,                # optional: last completed epoch
             }, checkpoint_path)
             logging.info(f"Checkpoint saved to {checkpoint_path}")

@@ -48,11 +48,10 @@ class SchrodingerData:
         # collocation_X = n_data x (t, x)
 
         # x, t
-        X = torch.cat([torch.tensor(x_np, device=device), torch.zeros(size=(x_np.shape[0], 1), device=device)], dim=1)
-        rand_data_idx = torch.randint(0, X.shape[0], size=[n_data], device=device)
+        rand_data_idx = torch.randint(0, x_np.shape[0], size=[n_data], device=device)
 
         self.x_data = torch.tensor(x_np, device=device)[rand_data_idx].squeeze()
-        self.t_data = torch.zeros(size=(n_data, 1)).squeeze()
+        self.t_data = torch.zeros(size=(n_data, 1), device=device).squeeze()
 
         Exact = torch.tensor(Exact, device=device)
 
