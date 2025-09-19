@@ -195,7 +195,7 @@ def training_loop(epochs: int, wave_data: WaveData, model: nn.Module, criterion:
 
         boundary_loss, pde_loss, data_loss = criterion(model, wave_data)
 
-        loss = boundary_loss + data_loss
+        loss = boundary_loss + pde_loss + data_loss
 
         # Backpropagation
         loss.backward()
