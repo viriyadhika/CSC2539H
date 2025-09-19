@@ -67,9 +67,7 @@ if __name__ == '__main__':
         schrodinger_model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     
-
-    for i in range(epochs):
-        run = wandb.init(
+    run = wandb.init(
             reinit="finish_previous",
             entity="viriyadhika1",
             project="pinn-lab1",
@@ -78,7 +76,8 @@ if __name__ == '__main__':
                 "model": "Schrodinger PINN",
                 "epochs": epochs
             },
-        )
+    )
+    for i in range(epochs):
         optimizer.zero_grad()
         data_loss, boundary_loss, f_loss = get_loss(schrodinger_model, schrodinger_data)
         loss = data_loss + boundary_loss + f_loss
@@ -102,3 +101,5 @@ if __name__ == '__main__':
                 'epoch': i,                # optional: last completed epoch
             }, checkpoint_path)
             logging.info(f"Checkpoint saved to {checkpoint_path}")
+
+    run.finish()
