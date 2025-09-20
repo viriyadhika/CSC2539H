@@ -27,9 +27,6 @@ logging.basicConfig(
 device = "cuda" if torch.cuda.is_available() else "cpu"
 logging.info("Using " + device)
 
-torch.cuda.manual_seed(42)
-torch.manual_seed(42)
-
 if __name__ == '__main__':
     os.makedirs("Data", exist_ok=True)
     url = "https://github.com/maziarraissi/PINNs/raw/master/main/Data/NLS.mat"
