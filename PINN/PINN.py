@@ -55,7 +55,7 @@ if __name__ == '__main__':
                                    x_bound=[-5, 5]
                                   )
     
-    epochs = 30000
+    epochs = 60000
     schrodinger_model = SchrodingerModel(n_input=2, n_layer=3, n_out=2)
     optimizer = torch.optim.Adam(schrodinger_model.parameters())
     schrodinger_model.to(device)
@@ -92,7 +92,7 @@ if __name__ == '__main__':
         })
 
         
-        if i % 1000 == 0:
+        if (i + 1) % 10000 == 0:
             logging.info(loss)
             checkpoint_path = f"4Refactor/schrodinger_model-{i}.pt"
             torch.save({
