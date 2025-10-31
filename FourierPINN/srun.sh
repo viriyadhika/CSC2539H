@@ -1,1 +1,0 @@
-sbatch --partition=gpunodes --nodelist=gpunode6 -c 1 --mem=4G --gres=gpu:1 -t 120 run.sh
